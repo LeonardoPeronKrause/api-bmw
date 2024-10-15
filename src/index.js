@@ -49,9 +49,3 @@ app.post('/data', async (req, res) => {
         return res.status(500).send({error: 'Erro ao salvar o carro no banco de dados.'})
     }
 });
-
-// Conectar com MongoDb
-app.listen(port, () => {
-    mongoose.connect('mongodb+srv://leonardo:SWGz601uUrTG0PzD@api-bmw.gbaaf.mongodb.net/?retryWrites=true&w=majority&appName=api-bmw')
-    console.log(`Aplicação rodando na porta ${port}`);
-})
