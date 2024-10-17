@@ -34,7 +34,7 @@ O **Car Performance API** é uma API desenvolvida em Node.js com Express.js que 
 
 4. **Teste a API**
 
-    - Você pode usar ferramentas como Postman ou cURL para fazer requisições às rotas da API.
+    - Você pode usar ferramentas como Insomnia ou cURL para fazer requisições às rotas da API.
 
 # Endpoints
 
