@@ -26,13 +26,13 @@ app.get('/', async (req, res) => {
     const cars = await Car.find();
     return res.send(cars);
     } catch (error) {
-        res.status(500).send({error: 'Erro ao buscar carros.'});
+        return res.status(500).send({error: 'Erro ao buscar carros.'});
     }
 });
 
 app.get('/data/average-speed', async (req, res) => {
     try {
-        // Busca todosos carros no db
+        // Busca todos os carros no db
         const cars = await Car.find();
 
         // Verifica se existe dados de veiculos no db
@@ -57,9 +57,31 @@ app.get('/data/average-speed', async (req, res) => {
         // Retorna a média de velocidade
         return res.send({ averageSpeed });
     } catch (error) {
-        res.status(500).send({error: 'Erro ao calcular a média de velocidade.'});
+        return res.status(500).send({error: 'Erro ao calcular a média de velocidade.'});
     }
-})
+});
+
+app.get('/data/alerts', async (req, res) => {
+    try {
+        const cars = await Car.find();
+
+        const alerts = [];
+
+        cars.forEach(car => {
+            if (car.engineTemperature > 100) {
+                alerts.push(`A temperatura do motor do modelo ${car.vehicleModel} está acima de 100 graus.`)
+            }    
+        })
+
+        if (alerts.length === 0) {
+            return res.status(200).send({message: 'Todos os carros estão em condições normais.'});
+        }
+
+        return res.status(200).send({alerts})
+    } catch (error) {
+        return res.status(500).send({error: 'Erro ao buscar os dados no banco de dados.'});
+    }
+});
 
 // Rota para adicionar um novo carro
 app.post('/data', async (req, res) => {
@@ -95,5 +117,52 @@ app.post('/data', async (req, res) => {
         return res.status(201).send(car);
     } catch (error) {
         return res.status(500).send({error: 'Erro ao salvar o carro no banco de dados.'});
+    }
+});
+
+app.put('/car/:id', async (req, res) => {
+        try {
+            // Procurar e atualizar o carro pelo ID
+        const car = await Car.findByIdAndUpdate(req.params.id, {
+            vehicleModel: req.body.vehicleModel,
+            speed: req.body.speed,
+            engineTemperature: req.body.engineTemperature,
+            fuelLevel: req.body.fuelLevel
+        }, {
+            new: true // Retorna o carro atualizado
+        }
+    );
+
+    // Verificar se o carro foi encontrado
+    if (!car) {
+        return res.status(404).send({error: 'Carro não encontrado'});
+    }
+
+    // Enviar mensagem de sucesso e o carro atualizado
+    return res.status(200).send({message: 'Carro alterado com sucesso.', car});
+
+} catch (error) {
+    return res.status(500).send({error: 'Erro ao atualizar o carro.'});
+    }
+
+});
+
+app.delete('/car/:id', async (req, res) => {
+    try {
+        // Pega o ID do carro a ser deletado
+        const carId = req.params.id
+    
+        // Procura e deleta o carro no db pleo ID
+        const deletedCar = await Car.findByIdAndDelete(carId);
+
+        //Verifica se o carro foi encontrado e deletado
+        if (!deletedCar) {
+            return res.status(404).send({error: 'Carro não encontrado.'});
+        }
+
+        // Retorna uma mensagem de sucesso
+        return res.status(200).send({ message: 'Carro deletado com sucesso.'})
+    } catch (error) {
+        return res.status(500).send({error: 'Erro ao deletar o carro.'});
     }
 });
